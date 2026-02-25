@@ -31,6 +31,7 @@ def box_count_dimension(signal):
     counts = []
     
     # 3. Count boxes for each epsilon
+    # This function runs in O(n) for each epsilon; box_count_dimension runs in O(n log n), thanks to logarithmic num of epsilons
     for eps in epsilons:
         num_boxes = 0
         num_intervals = int(1 / eps)
