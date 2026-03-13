@@ -1,5 +1,57 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.stats import linregress
+
+def box_count_dimension(signal):
+    """
+    Calculates the box-counting fractal dimension of a 1D signal.
+
+    :param signal: 1D numpy array representing the signal
+    :return tuple (slope, log_eps_inv, log_counts): Estimated box-counting dimension, log(1/epsilon) values, log(N(epsilon)) values
+    """
+    n = len(signal)
+    
+    # 1. Normalize the signal to a [0, 1] x [0, 1] box
+    signal_norm = (signal - np.min(signal)) / (np.max(signal) - np.min(signal))
+    
+    # 2. Define box sizes (epsilon)
+    # We use powers of 2 for grid divisions: 2, 4, 8, 16... up to a sensible limit
+    max_k = int(np.floor(np.log2(n/10))) # Keep at least 10 points per box at the smallest scale
+    epsilons = 1.0 / (2 ** np.arange(1, max_k + 1))
+    
+    counts = []
+    
+    # 3. Count boxes for each epsilon
+    # This function runs in O(n) for each epsilon; box_count_dimension runs in O(n log n), thanks to logarithmic num of epsilons
+    for eps in epsilons:
+        num_boxes = 0
+        num_intervals = int(1 / eps)
+        points_per_interval = n // num_intervals
+        
+        for i in range(num_intervals):
+            start_idx = i * points_per_interval
+            # Handle the last interval safely
+            end_idx = (i + 1) * points_per_interval if i < num_intervals - 1 else n
+            
+            segment = signal_norm[start_idx:end_idx]
+            
+            if len(segment) > 0:
+                y_min = np.min(segment)
+                y_max = np.max(segment)
+                # Number of vertical boxes covering the signal in this interval
+                vertical_boxes = np.ceil((y_max - y_min) / eps)
+                # At least 1 box is needed to cover the points
+                num_boxes += max(1, vertical_boxes)
+                
+        counts.append(num_boxes)
+
+    # 4. Fit the line to log(N(epsilon)) vs log(1/epsilon)
+    log_eps_inv = np.log(1.0 / epsilons)
+    log_counts = np.log(counts)
+    
+    slope, intercept, r_value, p_value, std_err = linregress(log_eps_inv, log_counts)
+    
+    return slope, log_eps_inv, log_counts
 
 def hurst_rs(signal, min_chunk=8):
     """
@@ -67,51 +119,3 @@ def hurst_rs(signal, min_chunk=8):
     slope, intercept, r_value, p_value, std_err = linregress(log_k, log_rs)
     
     return slope
-
-# Old function; doesn't work efficiently at all
-# def rs(signal):
-#     """
-#     Placeholder function for R/S analysis to estimate the Hurst exponent of a 1D signal.
-#     This function is not yet implemented and serves as a template for future development.
-
-#     :param signal: 1D numpy array representing the signal
-#     :return: Estimated Hurst exponent (currently returns None)
-#     """
-
-#     n = len(signal)
-#     rs_values = []
-#     valid_k = [] # Keep track of valid k values to ensure arrays match later
-
-#     # Start from k=2 to avoid standard deviation of a single element
-#     for k in range(2, n + 1):
-#         # 1. Slice the sub-series for the current step
-#         sub_signal = signal[:k]
-        
-#         # 2. Calculate mean and standard deviation for this specific slice
-#         mu = np.mean(sub_signal)
-#         S = np.std(sub_signal, ddof=1)
-        
-#         # Safety check: if standard deviation is 0, we can't divide by it
-#         if S == 0:
-#             continue
-            
-#         # 3. Calculate the mean-centered cumulative deviate (Y)
-#         Y = np.cumsum(sub_signal - mu)
-        
-#         # 4. Calculate the Range (R) for this specific slice
-#         R = np.max(Y) - np.min(Y)
-        
-#         # 5. Calculate R/S and store it along with its corresponding k
-#         rs_values.append(R / S)
-#         valid_k.append(k)
-
-#     rsSeries = np.array(rs_values)
-
-#     # Create log series for linear regression using the valid_k values
-#     log_k = np.log(valid_k)
-#     log_rs = np.log(rsSeries)
-
-#     # Perform linear regression to find the slope (Hurst Exponent)
-#     slope, intercept, r_value, p_value, std_err = linregress(log_k, log_rs)
-
-#     return slope
