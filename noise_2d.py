@@ -2,7 +2,7 @@ import scipy
 import numpy as np
 from scipy.stats import linregress
 
-def fd_power_spectrum(array):
+def power_spectrum(array):
     """
     Estimates fractal dimension using the Power Spectrum (Fourier) method.
     """
@@ -43,7 +43,7 @@ def fd_power_spectrum(array):
     # Clip to theoretical bounds for 2D surface
     return np.clip(D, 2.0, 3.0)
 
-def fd_variogram(array, num_samples=5000):
+def variogram(array, num_samples=5000):
     """
     Estimates fractal dimension using the Variogram (Hurst Exponent) method.
     Uses random sampling for performance on large arrays.
