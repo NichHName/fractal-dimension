@@ -73,3 +73,25 @@ def array_to_custom_color_image(array, filename="colored_terrain.png"):
     # Save the resulting RGB array as an image
     plt.imsave(filename, rgb_image)
     print(f"Colored image successfully saved as '{filename}'")
+
+def array_to_purple_black_image(array, filename="purple_black_noise.png"):
+    """
+    Maps a normalized 2D array to a continuous gradient from Black (0.0) to Purple (1.0).
+    """
+    # Define our maximum purple color in RGB (0.0 to 1.0 format)
+    # A standard deep, vibrant purple is roughly [0.5, 0.0, 0.5]
+    # Matplotlib's 'Purples' maxes out closer to [0.29, 0.08, 0.53]
+    max_purple = np.array([0.3, 0.0, 0.5]) 
+    
+    # Use NumPy broadcasting to calculate the gradient instantly.
+    # array[:, :, np.newaxis] turns your (h, w) array into (h, w, 1).
+    # Multiplying it by the (3,) max_purple array automatically scales the color
+    # perfectly for every single pixel, creating an (h, w, 3) RGB image.
+    rgb_image = array[:, :, np.newaxis] * max_purple
+    
+    # Note: If you want to REVERSE the fade (so 0.0 is Purple and 1.0 is Black),
+    # change the line above to: rgb_image = (1.0 - array[:, :, np.newaxis]) * max_purple
+    
+    # Save the resulting RGB array as an image
+    plt.imsave(filename, rgb_image)
+    print(f"Gradient image successfully saved as '{filename}'")
