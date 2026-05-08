@@ -29,8 +29,27 @@ def generate_perlin_2d(shape, scale=100.0, octaves=1, persistence=0.5, lacunarit
     # Normalized return
     return (arr - np.min(arr)) / (np.max(arr) - np.min(arr))
 
-    # # Non-normalized return:
-    # return arr
+def generate_perlin_2d_non_normal(shape, scale=100.0, octaves=1, persistence=0.5, lacunarity=2.0, seed=67):
+    """Generates a 2D array of Perlin noise."""
+    arr = np.zeros(shape)
+    # Using an offset to simulate seeding
+    offset = seed * 100 
+    
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            arr[i][j] = pnoise2(
+                (i + offset) / scale, 
+                (j + offset) / scale, 
+                octaves=octaves, 
+                persistence=persistence, 
+                lacunarity=lacunarity, 
+                repeatx=1024, 
+                repeaty=1024, 
+                base=0
+            )
+            
+    # Non-normalized return:
+    return arr
 
 def array_to_image(array, filename="perlin_noise.png", cmap="magma"):
     """Saves a 2D array as an image."""
