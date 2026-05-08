@@ -1,9 +1,15 @@
 # Fractal Dimension Repository
 Repository of code to estimate the fractal dimension of 1D and 2D noise.
 
-## fracdim.ipynb
+## main.py
+The main engine for tests.
+1. run_1d_convergence_test: This function shows that as the length of the signal increases, the average error between the R/S analysis and box-counting methods compared to the theoretical fractal dimension diminishes towards zero.
+2. run_2d_parameter_sweep: Choose a parameter p (persistence), s (scale), or o (octave count) to test how estimated fractal dimension changes with respect to change in the specified parameter.
+3. run_2d_convergence_test: Give a theoretical dimension (between 2.0 and 3.0) and number of trials to test numerical convergence to the theoretical fractal dimension. Note: Variogram is quite bad at this one.
+4. generate_test_image: Generate a Perlin-noise-generated image with a specified color palette (default, two custom palettes, and any other supported by the noise library)
 
-A Jupyter Notebook serving as the main test file for all fractal dimension calculations.
+## experiments.py
+Contains the functions used in main.py.
 
 ### signal\_1d.py
 
